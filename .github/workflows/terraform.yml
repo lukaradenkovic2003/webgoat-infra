@@ -52,7 +52,7 @@ jobs:
     name: Terraform Plan
     needs: validate
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.inputs.action == 'plan' || github.event_name == 'push'
+    if: github.event_name == 'pull_request' || github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply' || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
@@ -76,7 +76,7 @@ jobs:
     name: Terraform Apply
     needs: plan
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event.inputs.action == 'apply'
     steps:
       - uses: actions/checkout@v4
 
@@ -125,5 +125,5 @@ jobs:
         if: always()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":"🗑️ Terraform Destroy izvršen za webgoat-infra (status: ${{ job.status }})"}' \
+          --data '{"text":" Terraform Destroy izvršen za webgoat-infra (status: ${{ job.status }})"}' \
           ${{ secrets.SLACK_WEBHOOK_URL }}
