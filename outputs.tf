@@ -22,3 +22,8 @@ output "eks_cluster_endpoint" {
   description = "EKS cluster API endpoint"
   value       = module.eks.cluster_endpoint
 }
+
+output "ecr_repository_url" {
+  description = "URL ECR repozitorijuma za WebGoat sliku"
+  value       = aws_ecr_repository.webgoat.repository_url
+}
