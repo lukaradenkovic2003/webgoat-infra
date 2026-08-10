@@ -10,6 +10,7 @@ module "eks" {
 
   cluster_endpoint_public_access = true
 
+  
   enable_cluster_creator_admin_permissions = true
 
   eks_managed_node_groups = {
@@ -18,6 +19,13 @@ module "eks" {
       min_size       = var.eks_node_min_size
       max_size       = var.eks_node_max_size
       desired_size   = var.eks_node_desired_size
+
+      
+      iam_role_additional_policies = {
+        AmazonEKSWorkerNodePolicy          = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        AmazonEKS_CNI_Policy              = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      }
     }
   }
 

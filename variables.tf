@@ -41,7 +41,7 @@ variable "cloudflare_zone_id" {
 variable "eks_node_instance_type" {
   description = "EC2 instance tip za EKS worker node-ove"
   type        = string
-  default     = "t3.large"
+  default     = "t3.micro"
 }
 
 variable "eks_node_desired_size" {
