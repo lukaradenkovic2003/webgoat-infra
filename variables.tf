@@ -25,7 +25,7 @@ variable "availability_zones" {
 variable "eks_cluster_version" {
   description = "Verzija Kubernetes-a za EKS klaster"
   type        = string
-  default     = "1.31"
+  default     = "1.36"
 }
 
 variable "cloudflare_api_token" {
@@ -41,7 +41,7 @@ variable "cloudflare_zone_id" {
 variable "eks_node_instance_type" {
   description = "EC2 instance tip za EKS worker node-ove"
   type        = string
-  default     = "t3.medium"
+  default     = "t3.large"
 }
 
 variable "eks_node_desired_size" {
