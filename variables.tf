@@ -25,7 +25,7 @@ variable "availability_zones" {
 variable "eks_cluster_version" {
   description = "Verzija Kubernetes-a za EKS klaster"
   type        = string
-  default     = "1.29"
+  default     = "1.31"
 }
 
 variable "cloudflare_api_token" {
