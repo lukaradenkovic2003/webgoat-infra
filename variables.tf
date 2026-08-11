@@ -29,35 +29,42 @@ variable "eks_cluster_version" {
 }
 
 variable "cloudflare_api_token" {
-  description = "Cloudflare API token za upravljanje DNS/WAF pravilima"
+  description = "Cloudflare API token for upravljanje DNS/WAF pravilima"
   type        = string
   sensitive   = true
 }
 
 variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID za webgoat-devsecops.xyz"
+  description = "Cloudflare Zone ID for webgoat-devsecops.xyz"
   type        = string
 }
 variable "eks_node_instance_type" {
-  description = "EC2 instance tip za EKS worker node-ove"
+  description = "EC2 instance tip for EKS worker nodes"
   type        = string
   default     = "t3.micro"
 }
 
 variable "eks_node_desired_size" {
-  description = "Zeljeni broj worker node-ova"
+  description = "Prefered number of worker nodes"
   type        = number
   default     = 1
 }
 
 variable "eks_node_min_size" {
-  description = "Minimalan broj worker node-ova"
+  description = "Minimal number of worker nodes"
   type        = number
   default     = 1
 }
 
 variable "eks_node_max_size" {
-  description = "Maksimalan broj worker node-ova"
+  description = "Max number of worker nodes"
   type        = number
   default     = 2
+}
+
+
+variable "domain_name" {
+  type        = string
+  default     = "webgoat-devsecops.xyz"
+  description = "Glavni domen za projekat, koristi se za DNS zapise i WAF pravila"
 }
