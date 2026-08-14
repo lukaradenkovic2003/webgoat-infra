@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - '**.tf'
+      - '.github/workflows/terraform.yml'
   pull_request:
     branches: [main]
     paths:
       - '**.tf'
+      - '.github/workflows/terraform.yml'
   workflow_dispatch:
     inputs:
       action:
@@ -102,24 +104,21 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # 1. Pravljenje AWS infrastrukture (EKS, VPC, IAM...)
+      # 1. Pravljenje AWS infrastrukture (EKS, VPC, ECR, IAM uloge...)
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
-      # 2. Preuzimanje svežih EKS kredencijala (MORA NASTUPITI NAKON APPLY-a)
-      - name: Update Kubeconfig for EKS
-        run: |
-          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster
-
-      # 3. Instalacija Helm CLI alata na runner
+      # 2. Instaliranje Helm CLI alata
       - name: Install Helm
         uses: azure/setup-helm@v4
         with:
           version: 'v3.13.0'
 
-      # 4. Instalacija ALB Kontrolera preko izvučenih ARN i VPC vrednosti iz Terraforma
+      # 3. Osvežavanje Kubeconfig-a i Deploy ALB Kontrolera u istom execution kontekstu
       - name: Deploy AWS Load Balancer Controller
         run: |
+          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster
+
           ALB_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
           VPC_ID=$(terraform output -raw vpc_id)
 
