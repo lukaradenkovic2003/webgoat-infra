@@ -12,7 +12,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = ">= 2.12" # Omogućava korišćenje Helm verzije 3.x bez konflikta sa lock fajlom
+      version = ">= 2.12"
     }
   }
 
@@ -34,10 +34,6 @@ provider "cloudflare" {
   api_key = var.cloudflare_api_token
 }
 
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_name
-}
-
 provider "helm" {
   kubernetes = {
     host                   = module.eks.cluster_endpoint
@@ -50,4 +46,3 @@ provider "helm" {
     }
   }
 }
-
