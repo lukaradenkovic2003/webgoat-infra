@@ -30,7 +30,7 @@ provider "aws" {
 }
 
 provider "cloudflare" {
-  email   = "lukaradenkovic@libero.it" 
+  email   = "lukaradenkovic@libero.it"
   api_key = var.cloudflare_api_token
 }
 
