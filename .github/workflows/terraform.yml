@@ -117,15 +117,15 @@ jobs:
       # 3. Osvežavanje Kubeconfig-a i Deploy ALB Kontrolera u istom execution kontekstu
       - name: Deploy AWS Load Balancer Controller
         run: |
-          # 1. Izvlačimo sve potrebne vrednosti direktno iz Terraforma
-          CLUSTER_NAME=$(terraform output -raw cluster_name)
+          # Ovde tačno dodaj ovaj red:
+          CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          
+          # I ostatak skripte nastavlja normalno:
           ALB_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
           VPC_ID=$(terraform output -raw vpc_id)
 
-          # 2. Osvežavamo kubeconfig koristeći dinamičku promenljivu
           aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name ${CLUSTER_NAME}
 
-          # 3. Pokrećemo Helm sa dinamičkim nazivom
           helm repo add eks https://aws.github.io/eks-charts
           helm repo update
 
