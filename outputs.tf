@@ -27,3 +27,9 @@ output "ecr_repository_url" {
   description = "URL ECR repozitorijuma za WebGoat sliku"
   value       = aws_ecr_repository.webgoat.repository_url
 }
+
+output "cloudflare_secret_header" {
+  description = "Tajni token koji ALB očekuje u X-Cloudflare-Secret headeru"
+  value       = random_password.cloudflare_alb_secret.result
+  sensitive   = true
+}

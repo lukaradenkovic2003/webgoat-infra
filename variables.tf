@@ -25,27 +25,17 @@ variable "availability_zones" {
 variable "eks_cluster_version" {
   description = "Verzija Kubernetes-a za EKS klaster"
   type        = string
-  default     = "1.36"
+  default     = "1.30" # Stabilna podržana EKS verzija
 }
 
-variable "cloudflare_api_token" {
-  description = "Cloudflare API token for upravljanje DNS/WAF pravilima"
-  type        = string
-  sensitive   = true
-}
-
-variable "cloudflare_zone_id" {
-  description = "Cloudflare Zone ID for webgoat-devsecops.xyz"
-  type        = string
-}
 variable "eks_node_instance_type" {
   description = "EC2 instance tip for EKS worker nodes"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.micro" # Dovoljno RAM-a za EKS add-on-e i WebGoat
 }
 
 variable "eks_node_desired_size" {
-  description = "Prefered number of worker nodes"
+  description = "Preferred number of worker nodes"
   type        = number
   default     = 1
 }
@@ -62,9 +52,25 @@ variable "eks_node_max_size" {
   default     = 2
 }
 
-
 variable "domain_name" {
   type        = string
+  description = "Glavni domen za projekat"
   default     = "webgoat-devsecops.xyz"
-  description = "Glavni domen za projekat, koristi se za DNS zapise i WAF pravila"
+}
+
+variable "cloudflare_api_token" {
+  type        = string
+  description = "Cloudflare API Token sa Zone.DNS i Zone.Zone Settings dozvolama"
+  sensitive   = true
+}
+
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare Zone ID za tvoj domen"
+}
+
+variable "alb_dns_name" {
+  type        = string
+  description = "DNS naziv AWS Load Balancera"
+  default     = "dummy-alb.us-east-1.elb.amazonaws.com"
 }
