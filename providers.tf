@@ -45,3 +45,8 @@ provider "helm" {
     }
   }
 }
+
+provider "cloudflare" {
+  email   = "lukaradenkovic@libero.it" # Tvoj Cloudflare email
+  api_key = var.cloudflare_api_token # Ovde proslediš Global API Key
+}
