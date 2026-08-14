@@ -102,22 +102,22 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # 1. Pravljenje AWS infrastrukture
+      # 1. Pravljenje AWS infrastrukture (EKS, VPC, IAM...)
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
-      # 2. Generisanje kubeconfig-a za EKS
+      # 2. Preuzimanje svežih EKS kredencijala (MORA NASTUPITI NAKON APPLY-a)
       - name: Update Kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster
 
-      # 3. Instalacija Helm CLI-ja na runner-u
+      # 3. Instalacija Helm CLI alata na runner
       - name: Install Helm
         uses: azure/setup-helm@v4
         with:
           version: 'v3.13.0'
 
-      # 4. Instalacija AWS Load Balancer Controller-a preko Helm CLI
+      # 4. Instalacija ALB Kontrolera preko izvučenih ARN i VPC vrednosti iz Terraforma
       - name: Deploy AWS Load Balancer Controller
         run: |
           ALB_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
