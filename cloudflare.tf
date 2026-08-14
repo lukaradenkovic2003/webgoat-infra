@@ -8,7 +8,7 @@ resource "random_password" "cloudflare_alb_secret" {
 resource "cloudflare_record" "root" {
   zone_id = var.cloudflare_zone_id
   name    = "@"
-  content = var.alb_dns_name # DNS ime AWS ALB-a (prenosi se iz varijable ili EKS Ingress-a)
+  content = var.alb_dns_name # DNS ime AWS ALB-a
   type    = "CNAME"
   ttl     = 1
   proxied = true # Omogućava WAF, DDoS i HTTPS proxy
@@ -36,8 +36,9 @@ resource "cloudflare_ruleset" "add_custom_header" {
     action = "rewrite"
     action_parameters {
       headers {
-        name  = "X-Cloudflare-Secret"
-        value = random_password.cloudflare_alb_secret.result
+        name      = "X-Cloudflare-Secret"
+        operation = "set"
+        value     = random_password.cloudflare_alb_secret.result
       }
     }
     expression  = "true"
