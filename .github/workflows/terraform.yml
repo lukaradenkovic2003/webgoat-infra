@@ -63,6 +63,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Update Kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster || true
+
       - name: Terraform Plan
         run: terraform plan -no-color -out=tfplan
 
@@ -86,6 +90,10 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+
+      - name: Update Kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
@@ -118,6 +126,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Update Kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster || true
+
       - name: Terraform Destroy
         run: terraform destroy -auto-approve
 
@@ -125,5 +137,5 @@ jobs:
         if: always()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":" Terraform Destroy izvršen za webgoat-infra (status: ${{ job.status }})"}' \
+          --data '{"text":"⚠️ Terraform Destroy izvršen za webgoat-infra (status: ${{ job.status }})"}' \
           ${{ secrets.SLACK_WEBHOOK_URL }}
