@@ -1,38 +1,36 @@
-resource "helm_release" "aws_load_balancer_controller" {
-  name       = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
+# 1. IAM Policy za ALB Controller
+resource "aws_iam_policy" "alb_controller" {
+  name        = "AWSLoadBalancerControllerIAMPolicy"
+  path        = "/"
+  description = "IAM policy for AWS Load Balancer Controller"
+  policy      = file("${path.module}/iam_policy.json")
+}
 
-  set = [
-    {
-      name  = "clusterName"
-      value = module.eks.cluster_name
-    },
-    {
-      name  = "serviceAccount.create"
-      value = "true"
-    },
-    {
-      name  = "serviceAccount.name"
-      value = "aws-load-balancer-controller"
-    },
-    {
-      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-      value = aws_iam_role.alb_controller.arn
-    },
-    {
-      name  = "region"
-      value = "us-east-1"
-    },
-    {
-      name  = "vpcId"
-      value = module.vpc.vpc_id
-    }
-  ]
+# 2. IAM Rola za ALB Controller
+resource "aws_iam_role" "alb_controller" {
+  name = "aws-load-balancer-controller"
 
-  depends_on = [
-    module.eks,
-    aws_iam_role_policy_attachment.alb_controller_attach
-  ]
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = module.eks.oidc_provider_arn
+        }
+        Condition = {
+          StringEquals = {
+            "${replace(module.eks.cluster_oidc_issuer_url, "https://", "")}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# 3. Spajanje Policy-a sa Rolom
+resource "aws_iam_role_policy_attachment" "alb_controller_attach" {
+  policy_arn = aws_iam_policy.alb_controller.arn
+  role       = aws_iam_role.alb_controller.name
 }

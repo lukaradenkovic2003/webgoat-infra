@@ -71,10 +71,6 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Update Kubeconfig for EKS
-        run: |
-          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster || true
-
       - name: Terraform Plan
         run: terraform plan -no-color -out=tfplan
 
@@ -106,25 +102,51 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      # 1. Pravljenje AWS infrastrukture
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      # 2. Generisanje kubeconfig-a za EKS
       - name: Update Kubeconfig for EKS
         run: |
           aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      # 3. Instalacija Helm CLI-ja na runner-u
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.13.0'
+
+      # 4. Instalacija AWS Load Balancer Controller-a preko Helm CLI
+      - name: Deploy AWS Load Balancer Controller
+        run: |
+          ALB_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
+          VPC_ID=$(terraform output -raw vpc_id)
+
+          helm repo add eks https://aws.github.io/eks-charts
+          helm repo update
+
+          helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
+            -n kube-system \
+            --set clusterName=webgoat-devsecops-cluster \
+            --set serviceAccount.create=true \
+            --set serviceAccount.name=aws-load-balancer-controller \
+            --set "serviceAccount.annotations.eks\.amazonaws\.com/role-arn=${ALB_ROLE_ARN}" \
+            --set region=${{ vars.AWS_DEFAULT_REGION }} \
+            --set vpcId=${VPC_ID}
 
       - name: Notify Slack on Success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":"✅ Terraform Apply uspešan za webgoat-infra (commit: ${{ github.sha }})"}' \
+          --data '{"text":"✅ Terraform Apply i Helm Deploy uspešni za webgoat-infra (commit: ${{ github.sha }})"}' \
           ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Notify Slack on Failure
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":"❌ Terraform Apply NEUSPEŠAN za webgoat-infra (commit: ${{ github.sha }})"}' \
+          --data '{"text":"❌ Pipeline NEUSPEŠAN za webgoat-infra (commit: ${{ github.sha }})"}' \
           ${{ secrets.SLACK_WEBHOOK_URL }}
 
   destroy:
@@ -147,10 +169,6 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-
-      - name: Update Kubeconfig for EKS
-        run: |
-          aws eks update-kubeconfig --region ${{ vars.AWS_DEFAULT_REGION }} --name webgoat-devsecops-cluster || true
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve

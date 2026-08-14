@@ -33,3 +33,7 @@ output "cloudflare_secret_header" {
   value       = random_password.cloudflare_alb_secret.result
   sensitive   = true
 }
+
+output "alb_controller_role_arn" {
+  value = aws_iam_role.alb_controller.arn
+}
