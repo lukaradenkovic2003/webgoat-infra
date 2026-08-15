@@ -34,13 +34,7 @@ provider "cloudflare" {
   api_key = var.cloudflare_api_token
 }
 
-data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_name
-}
 
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_name
-}
 
 provider "helm" {
   kubernetes = {

@@ -31,13 +31,13 @@ variable "eks_cluster_version" {
 variable "eks_node_instance_type" {
   description = "EC2 instance tip for EKS worker nodes"
   type        = string
-  default     = "t3.micro" # Dovoljno RAM-a za EKS add-on-e i WebGoat
+  default     = "t3.small" # Dovoljno RAM-a za EKS add-on-e i WebGoat
 }
 
 variable "eks_node_desired_size" {
   description = "Preferred number of worker nodes"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "eks_node_min_size" {
