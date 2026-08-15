@@ -104,17 +104,17 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # 1. Pravljenje AWS infrastrukture (EKS, VPC, ECR, IAM uloge...)
+      
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
-      # 2. Instaliranje Helm CLI alata
+     
       - name: Install Helm
         uses: azure/setup-helm@v4
         with:
           version: 'v3.13.0'
 
-      # 3. Osvežavanje Kubeconfig-a i Deploy ALB Kontrolera u istom execution kontekstu
+      
       - name: Deploy AWS Load Balancer Controller
         run: |
           # Ovde tačno dodaj ovaj red:
