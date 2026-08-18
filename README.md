@@ -62,6 +62,75 @@ Triggers on push/PR to `main` (only when `.tf` files change), plus manually via 
 | `CLOUDFLARE_API_TOKEN` | Managing DNS/WAF via the Cloudflare provider |
 | `SLACK_WEBHOOK_URL` | Sending notifications to the Slack channel |
 
+## Setting up AWS OIDC & GitHub Token
+
+If the AWS OIDC provider or the GitHub token were deleted/rotated, follow these steps to recreate them:
+
+### 1. AWS OIDC Identity Provider
+
+Create (or verify) the GitHub OIDC provider in AWS IAM:
+
+\```bash
+aws iam create-open-id-connect-provider \
+  --url https://token.actions.githubusercontent.com \
+  --client-id-list sts.amazonaws.com \
+  --thumbprint-list <thumbprint>
+\```
+
+> This step is usually only needed **once per AWS account** — if the provider already exists, skip it.
+
+### 2. IAM Role for GitHub Actions (`github-actions-ecr-push`)
+
+Create an IAM role with a trust policy scoped to this repo (and optionally branch/environment):
+
+\```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::<ACCOUNT_ID>:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:lukaradenkovic2003/webgoat-infra:*"
+        }
+      }
+    }
+  ]
+}
+\```
+
+Attach the required permissions (ECR push, EKS access, etc. — see `iam_policy.json`).
+
+Then update the pipeline (`.github/workflows/terraform.yml`) to assume this role via OIDC instead of static keys:
+
+\```yaml
+permissions:
+  id-token: write
+  contents: read
+
+- uses: aws-actions/configure-aws-credentials@v4
+  with:
+    role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/github-actions-ecr-push
+    aws-region: us-east-1
+\```
+
+> Once OIDC is working, the `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` secrets listed above can be removed — OIDC replaces them.
+
+### 3. GitHub Token
+
+If a GitHub token is needed (e.g. for cross-repo triggers to `WebGoat` or `webgoat-helm`):
+
+1. Generate a fine-grained Personal Access Token in GitHub → **Settings → Developer settings → Personal access tokens**
+2. Scope it to only the repos it needs to touch, with the minimum required permissions (e.g. `Contents: Read/Write`, `Actions: Read/Write` if triggering workflows)
+3. Add it as a repository secret, e.g. `GH_PAT`, and reference it in the workflow where cross-repo access is needed
+
 **Repository variables:**
 | Variable | Purpose |
 |---|---|
