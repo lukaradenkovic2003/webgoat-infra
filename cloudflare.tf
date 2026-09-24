@@ -47,7 +47,7 @@ resource "cloudflare_ruleset" "add_custom_header" {
   }
 }
 
-# 5. WAF Custom Rule - Geo-blocking pravilo
+# 5. WAF Custom Rule
 resource "cloudflare_ruleset" "geo_blocking" {
   zone_id     = var.cloudflare_zone_id
   name        = "Geo-blocking rules"
