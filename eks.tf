@@ -21,7 +21,7 @@ module "eks" {
       desired_size = var.eks_node_desired_size
 
       instance_types = [var.eks_node_instance_type]
-      ami_type       = "AL2023_x86_64_STANDARD" # <-- OVU LINIJU DODAJ/DOPUNI
+      ami_type       = "AL2023_x86_64_STANDARD" 
 
       capacity_type = "ON_DEMAND"
     }
