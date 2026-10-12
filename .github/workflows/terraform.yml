@@ -117,10 +117,8 @@ jobs:
       
       - name: Deploy AWS Load Balancer Controller
         run: |
-          # Ovde tačno dodaj ovaj red:
           CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
-          
-          # I ostatak skripte nastavlja normalno:
+        
           ALB_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
           VPC_ID=$(terraform output -raw vpc_id)
 
